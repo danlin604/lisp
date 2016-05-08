@@ -119,7 +119,7 @@
 			 (chimney))))
 
 (defparameter *wizard-nodes* '((living-room (you are in the living-room.
-					     a wizard is snowing loudly on the couch.))
+					     a wizard is snoring loudly on the couch.))
 			       (garden (you are in a beautiful garden.
 					there is a well in front of you.))
 			       (attic (you are in the attic. there
@@ -143,4 +143,39 @@
 	    s))
       ""))
 
+(defun nodes->dot (nodes)
+  (mapc (lambda (node)
+	  (fresh-line)
+	  (princ (dot-name (car node)))
+	  (princ "[label=\"")
+	  (princ (dot-label node))
+	  (princ "\"];"))
+	nodes))
+
+(defun edges->dot (edges)
+  (mapc (lambda (node)
+	  (mapc (lambda (edge)
+		  (fresh-line)
+		  (princ (dot-name (car node)))
+		  (princ "->")
+		  (princ (dot-name (car edge)))
+		  (princ "[label=\"")
+		  (princ (dot-label (cdr edge)))
+		  (princ "\"];"))
+		(cdr node)))
+	edges))
+
+(defun graph->dot (nodes edges)
+  (princ "digraph{")
+  (nodes->dot nodes)
+  (edges->dot edges)
+  (princ "}"))
+
+(defun dot->png (fname thunk)
+  (with-open-file (*standard-output*
+		   fname
+		   :direction :output
+		   :if-exists :supersede)
+    (funcall thunk))
+  (ext:shell (concatenate 'string "dot -Tpng -0 " fname)))
 
