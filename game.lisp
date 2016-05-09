@@ -173,9 +173,41 @@
 
 (defun dot->png (fname thunk)
   (with-open-file (*standard-output*
-		   fname
+		   (concatenate 'string "D:/repo/lisp/" fname)
 		   :direction :output
 		   :if-exists :supersede)
     (funcall thunk))
-  (ext:shell (concatenate 'string "dot -Tpng -0 " fname)))
+  (sb-ext:run-program "D:/Apps/Graphviz2.38/bin/dot.exe"
+		      (list "-Tpng" "-O" (concatenate 'string "D:/repo/lisp/" fname))))
+
+(defun graph->png (fname nodes edges)
+  (dot->png fname
+	    (lambda ()
+	      (graph->dot nodes edges))))
+
+(defun uedges->dot (edges)
+  (maplist (lambda (lst)
+	     (mapc (lambda (edge)
+		     (unless (assoc (car edge) (cdr lst))
+		       (fresh-line)
+		       (princ (dot-name (caar lst)))
+		       (princ "--")
+		       (princ (dot-name (car edge)))
+		       (princ "[label=\"")
+		       (princ (dot-label (cdr edge)))
+		       (princ "\"];")))
+		   (cdr lst)))
+	   edges))
+
+(defun ugraph->dot (nodes edges)
+  (princ "graph{")
+  (nodes->dot nodes)
+  (uedges->dot edges)
+  (princ "}"))
+
+(defun ugraph->png (fname nodes edges)
+  (dot->png fname
+	    (lambda ()
+	      (ugraph->dot nodes edges))))
+
 
