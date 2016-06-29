@@ -44,3 +44,14 @@
            (zero? (mod n 5)) "Buzz"
            :else n))
     (range start finish)))
+
+(defn fizz-buzz-cond []
+  (loop [i 1]
+    (if (<= i 100)
+      (do
+        (cond
+          (and (= (rem i 3) 0) (= (rem i 5) 0)) (println "FizzBuzz")
+          (= (rem i 5) 0) (println "Fizz")
+          (= (rem i 5) 0) (println "Buzz")
+          :else (println i))
+        (recur (inc i))))))
